@@ -361,7 +361,9 @@ export default function Home() {
     tItem,
   ]);
 
-  const baseUrl = typeof window !== "undefined" ? window.location.origin : "http://localhost:3000";
+  // Use a constant base URL for SEO structured data to avoid hydration mismatch
+  // Search engines will see the server-rendered version with this URL
+  const seoBaseUrl = "https://arcforge.gg";
 
   return (
     <>
@@ -372,7 +374,7 @@ export default function Home() {
           name: "ARC Forge",
           description:
             "Complete ARC Raiders item database with crafting graphs, recipes, and item information",
-          url: baseUrl,
+          url: seoBaseUrl,
         }}
       />
       <StructuredData
@@ -385,7 +387,7 @@ export default function Home() {
             name: item.name,
             description: item.infobox?.quote || `${item.infobox?.rarity} ${item.infobox?.type}`,
             image: item.image_urls?.thumb,
-            url: `${baseUrl}/?search=${encodeURIComponent(item.name)}`,
+            url: `${seoBaseUrl}/?search=${encodeURIComponent(item.name)}`,
           })),
         }}
       />

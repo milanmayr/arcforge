@@ -1,5 +1,6 @@
 "use client";
 
+import { useCallback } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch } from "@fortawesome/free-solid-svg-icons";
 import { Item } from "../../types/item";
@@ -35,6 +36,26 @@ export default function ItemsGrid({
 }: ItemsGridProps) {
   const { t } = useTranslation();
 
+  // Stable callback for item click - memoized to prevent ItemCard re-renders
+  const handleItemClick = useCallback(
+    (item: Item) => {
+      if (openCraftingGraphOnClick) {
+        window.location.href = `/crafting-graph?item=${encodeURIComponent(item.name)}`;
+      } else {
+        onItemClick(item);
+      }
+    },
+    [openCraftingGraphOnClick, onItemClick],
+  );
+
+  // Stable callback for item tracking
+  const handleItemTracked = useCallback(
+    (itemName: string) => {
+      onItemTracked(itemName);
+    },
+    [onItemTracked],
+  );
+
   return (
     <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 relative z-10">
       <div className="max-w-[1600px] mx-auto">
@@ -49,30 +70,20 @@ export default function ItemsGrid({
                   : "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-4"
           }`}
         >
-          {items.map((item, index) => {
-            const handleClick = () => {
-              if (openCraftingGraphOnClick) {
-                window.location.href = `/crafting-graph?item=${encodeURIComponent(item.name)}`;
-              } else {
-                onItemClick(item);
-              }
-            };
-
-            return (
-              <ItemCard
-                key={`${item.name}-${index}`}
-                item={item}
-                displayPrice={displayPrice}
-                displayWeight={displayWeight}
-                showTrackIcon={showTrackIcons}
-                lightweightMode={lightweightMode}
-                showRecommendation={showRecommendations}
-                onClick={handleClick}
-                onTracked={() => onItemTracked(item.name)}
-                isTrackedFunc={isTrackedFunc}
-              />
-            );
-          })}
+          {items.map((item, index) => (
+            <ItemCard
+              key={`${item.name}-${index}`}
+              item={item}
+              displayPrice={displayPrice}
+              displayWeight={displayWeight}
+              showTrackIcon={showTrackIcons}
+              lightweightMode={lightweightMode}
+              showRecommendation={showRecommendations}
+              onClick={() => handleItemClick(item)}
+              onTracked={() => handleItemTracked(item.name)}
+              isTrackedFunc={isTrackedFunc}
+            />
+          ))}
         </div>
 
         {/* No Results */}
